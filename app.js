@@ -20,23 +20,25 @@ const ui = {
 
 const messages = {
   bm: {
-    appTitle: "Garis Nombor Pintar",
-    appSubtitle: "Teroka nombor dengan melihat, bergerak dan mencuba.",
-    modeExplore: "Teroka", modeCompare: "Banding", modeRounding: "Bundar", modePattern: "Pola",
-    controls: "Kawalan", yourTask: "Tugasan kamu", newQuestion: "Soalan baharu",
-    stepLook: "Lihat kedudukan", stepThink: "Fikir hubungannya", stepAnswer: "Beri jawapan",
-    titleExplore: "Teroka nombor", titleCompare: "Banding nombor", titleRounding: "Bundar nombor", titlePattern: "Pola nombor",
-    promptExplore: "Pilih satu nombor pada garis nombor.",
-    promptCompare: (a, b) => `Bandingkan ${a} dengan ${b}.`,
-    promptRounding: (n, base) => `Bundarkan ${n} kepada ${base === 10 ? "puluh" : base === 100 ? "ratus" : "ribu"} terdekat.`,
-    promptPattern: "Apakah nombor yang hilang dalam pola ini?",
+    appTitle: "Jom Main Garis Nombor!",
+    appSubtitle: "Lihat, tekan dan cari jawapan.",
+    modeExplore: "Kenal Nombor", modeCompare: "Mana Lebih Besar?", modeRounding: "Nombor Terdekat", modePattern: "Cari Pola",
+    controls: "Pilih nombor", yourTask: "Mari cuba!", newQuestion: "Cuba soalan lain",
+    stepLook: "Lihat garis nombor", stepThink: "Pilih jawapan", stepAnswer: "Semak terus",
+    speakAnswer: "Dengar jawapan", speakNumber: "Dengar nombor",
+    titleExplore: "Kenal nombor", titleCompare: "Mana lebih besar?", titleRounding: "Cari nombor terdekat", titlePattern: "Cari pola",
+    promptExplore: "Tekan pada garis nombor untuk memilih nombor.",
+    promptCompare: (a, b) => `Lihat ${a} dan ${b}. Yang mana lebih besar?`,
+    promptRounding: (n, base) => `${n} lebih dekat kepada ${base === 10 ? "puluh" : base === 100 ? "ratus" : "ribu"} yang mana?`,
+    promptPattern: "Nombor apa yang hilang?",
     range: "Julat nombor", number: "Nombor", stepSize: "Saiz langkah", firstNumber: "Nombor pertama", secondNumber: "Nombor kedua",
     roundingTo: "Bundar kepada", nearest10: "Puluh terdekat", nearest100: "Ratus terdekat", nearest1000: "Ribu terdekat",
     start: "Nombor mula", difference: "Perbezaan", direction: "Arah pola", increasing: "Menaik", decreasing: "Menurun",
-    selected: "Nombor dipilih", clickHint: "Klik atau sentuh garis nombor untuk memilih nombor.",
-    compareHint: "Pilih simbol yang betul.", roundHint: "Pilih nombor bundar yang betul.", patternHint: "Taip nombor yang hilang.",
+    selected: "Nombor dipilih", clickHint: "Tekan garis atau butang + dan −.",
+    compareHint: "Pilih ‘lebih besar’ atau ‘lebih kecil’.", roundHint: "Pilih jawapan yang paling dekat.", patternHint: "Taip nombor yang hilang.",
     check: "Semak", correct: "Betul!", tryAgain: "Cuba lagi. Lihat kedudukan nombor pada garis.",
-    compareCorrect: (a, sign, b) => `Betul! ${a} ${sign} ${b}.`,
+    lessThan: "lebih kecil", greaterThan: "lebih besar", differentNumbers: "Pilih dua nombor yang berlainan.",
+    compareCorrect: (a, relation, b) => `Betul! ${a} ${relation} daripada ${b}.`,
     roundCorrect: (n, answer) => `Betul! ${n} dibundarkan menjadi ${answer}.`,
     roundExplain: (low, high) => `Bandingkan jarak kepada ${low} dan ${high}.`,
     patternCorrect: (answer) => `Betul! Nombor yang hilang ialah ${answer}.`,
@@ -44,39 +46,43 @@ const messages = {
     markerA: "Nombor A", markerB: "Nombor B", midpoint: "Titik tengah", missing: "Hilang"
   },
   zh: {
-    appTitle: "智能数轴", appSubtitle: "通过观察、移动和尝试来探索数字。",
-    modeExplore: "探索", modeCompare: "比较", modeRounding: "取整", modePattern: "规律",
-    controls: "控制", yourTask: "你的任务", newQuestion: "新题目",
-    stepLook: "观察位置", stepThink: "思考关系", stepAnswer: "作答",
-    titleExplore: "探索数字", titleCompare: "比较数字", titleRounding: "数字取整", titlePattern: "数字规律",
-    promptExplore: "在数轴上选择一个数字。", promptCompare: (a, b) => `比较 ${a} 和 ${b}。`,
-    promptRounding: (n, base) => `把 ${n} 取整到最接近的${base === 10 ? "十" : base === 100 ? "百" : "千"}。`,
-    promptPattern: "这个规律中缺少什么数字？",
+    appTitle: "一起玩数轴！", appSubtitle: "看一看、点一点、找答案。",
+    modeExplore: "认识数字", modeCompare: "谁比较大？", modeRounding: "找最近的数", modePattern: "找规律",
+    controls: "选择数字", yourTask: "来试一试！", newQuestion: "换一题",
+    stepLook: "看数轴", stepThink: "选答案", stepAnswer: "马上检查",
+    speakAnswer: "听答案", speakNumber: "听数字",
+    titleExplore: "认识数字", titleCompare: "谁比较大？", titleRounding: "找最近的数", titlePattern: "找规律",
+    promptExplore: "点击数轴，选择一个数字。", promptCompare: (a, b) => `看看 ${a} 和 ${b}，哪一个比较大？`,
+    promptRounding: (n, base) => `${n} 比较靠近哪一个整${base === 10 ? "十" : base === 100 ? "百" : "千"}数？`,
+    promptPattern: "少了哪一个数字？",
     range: "数字范围", number: "数字", stepSize: "每次移动", firstNumber: "第一个数", secondNumber: "第二个数",
     roundingTo: "取整单位", nearest10: "最接近的十", nearest100: "最接近的百", nearest1000: "最接近的千",
     start: "开始数字", difference: "相差", direction: "规律方向", increasing: "递增", decreasing: "递减",
-    selected: "已选择", clickHint: "点击或触摸数轴来选择数字。", compareHint: "选择正确的符号。",
-    roundHint: "选择正确的整十、整百或整千数。", patternHint: "输入缺少的数字。", check: "检查",
+    selected: "已选择", clickHint: "点击数轴，或使用 + 和 −。", compareHint: "选择“大过”或“小过”。",
+    roundHint: "选择最靠近的答案。", patternHint: "输入缺少的数字。", check: "检查",
     correct: "答对了！", tryAgain: "再试一次，看看数字在数轴上的位置。",
-    compareCorrect: (a, sign, b) => `答对了！${a} ${sign} ${b}。`, roundCorrect: (n, answer) => `答对了！${n} 取整后是 ${answer}。`,
+    lessThan: "小过", greaterThan: "大过", differentNumbers: "请选择两个不同的数字。",
+    compareCorrect: (a, relation, b) => `答对了！${a} ${relation} ${b}。`, roundCorrect: (n, answer) => `答对了！答案是 ${answer}。`,
     roundExplain: (low, high) => `比较它到 ${low} 和 ${high} 的距离。`, patternCorrect: (answer) => `答对了！缺少的数字是 ${answer}。`,
     enterAnswer: "输入答案", samePlace: "两个数字在相同的位置。", markerA: "数字 A", markerB: "数字 B", midpoint: "中点", missing: "缺少"
   },
   en: {
-    appTitle: "Smart Number Line", appSubtitle: "Explore numbers by looking, moving, and trying.",
-    modeExplore: "Explore", modeCompare: "Compare", modeRounding: "Round", modePattern: "Pattern",
-    controls: "Controls", yourTask: "Your task", newQuestion: "New question",
-    stepLook: "Look at the position", stepThink: "Think about the relationship", stepAnswer: "Give your answer",
-    titleExplore: "Explore numbers", titleCompare: "Compare numbers", titleRounding: "Round numbers", titlePattern: "Number patterns",
-    promptExplore: "Choose a number on the number line.", promptCompare: (a, b) => `Compare ${a} with ${b}.`,
-    promptRounding: (n, base) => `Round ${n} to the nearest ${base}.`, promptPattern: "What number is missing from this pattern?",
+    appTitle: "Number Line Fun!", appSubtitle: "Look, tap, and find the answer.",
+    modeExplore: "Know Numbers", modeCompare: "Which Is Bigger?", modeRounding: "Nearest Number", modePattern: "Find the Pattern",
+    controls: "Choose numbers", yourTask: "Let's try!", newQuestion: "Try another one",
+    stepLook: "Look at the line", stepThink: "Choose an answer", stepAnswer: "Check it",
+    speakAnswer: "Hear the answer", speakNumber: "Hear the number",
+    titleExplore: "Know numbers", titleCompare: "Which is bigger?", titleRounding: "Find the nearest number", titlePattern: "Find the pattern",
+    promptExplore: "Tap the number line to choose a number.", promptCompare: (a, b) => `Look at ${a} and ${b}. Which is bigger?`,
+    promptRounding: (n, base) => `Which multiple of ${base} is ${n} closer to?`, promptPattern: "Which number is missing?",
     range: "Number range", number: "Number", stepSize: "Step size", firstNumber: "First number", secondNumber: "Second number",
     roundingTo: "Round to", nearest10: "Nearest 10", nearest100: "Nearest 100", nearest1000: "Nearest 1,000",
     start: "Starting number", difference: "Difference", direction: "Pattern direction", increasing: "Increasing", decreasing: "Decreasing",
-    selected: "Selected number", clickHint: "Click or touch the number line to choose a number.", compareHint: "Choose the correct symbol.",
-    roundHint: "Choose the correct rounded number.", patternHint: "Type the missing number.", check: "Check",
+    selected: "Selected number", clickHint: "Tap the line, or use + and −.", compareHint: "Choose ‘smaller’ or ‘bigger’.",
+    roundHint: "Choose the nearest answer.", patternHint: "Type the missing number.", check: "Check",
     correct: "Correct!", tryAgain: "Try again. Look at the positions on the number line.",
-    compareCorrect: (a, sign, b) => `Correct! ${a} ${sign} ${b}.`, roundCorrect: (n, answer) => `Correct! ${n} rounds to ${answer}.`,
+    lessThan: "is smaller", greaterThan: "is bigger", differentNumbers: "Please choose two different numbers.",
+    compareCorrect: (a, relation, b) => `Correct! ${a} ${relation} than ${b}.`, roundCorrect: (n, answer) => `Correct! The answer is ${answer}.`,
     roundExplain: (low, high) => `Compare its distance from ${low} and ${high}.`, patternCorrect: (answer) => `Correct! The missing number is ${answer}.`,
     enterAnswer: "Enter your answer", samePlace: "Both numbers are at the same position.", markerA: "Number A", markerB: "Number B", midpoint: "Midpoint", missing: "Missing"
   }
@@ -85,6 +91,7 @@ const messages = {
 const state = {
   lang: "bm",
   mode: "explore",
+  spokenAnswer: "",
   explore: { range: 100, value: 37, step: 1 },
   compare: { a: 38, b: 64 },
   rounding: { value: 237, base: 10 },
@@ -119,6 +126,21 @@ function clearFeedback(message) {
 function showFeedback(message, success) {
   ui.feedback.className = `feedback ${success ? "success" : "error"}`;
   ui.feedback.textContent = message;
+}
+
+function setSpokenAnswer(text) {
+  state.spokenAnswer = text;
+  ui.speak.disabled = !text;
+  const label = ui.speak.querySelector("span:last-child");
+  if (label) label.textContent = t(state.mode === "explore" ? "speakNumber" : "speakAnswer");
+}
+
+function spokenComparison(a, relation, b) {
+  const left = numberWords(a);
+  const right = numberWords(b);
+  if (state.lang === "zh") return `${left}${relation}${right}`;
+  if (state.lang === "en") return `${left} ${relation} than ${right}`;
+  return `${left} ${relation} daripada ${right}`;
 }
 
 function setStaticTranslations() {
@@ -395,6 +417,7 @@ function renderExplore() {
   drawAxis(0, range, range / 10);
   drawMarker(value, 0, range, { label: formatNumber(value) });
   ui.answer.innerHTML = "";
+  setSpokenAnswer(numberWords(value));
   clearFeedback(t("clickHint"));
 }
 
@@ -402,20 +425,33 @@ function renderCompare() {
   const { a, b } = state.compare;
   const bounds = niceBounds([a, b]);
   ui.prompt.textContent = t("promptCompare", formatNumber(a), formatNumber(b));
-  ui.display.innerHTML = `<span class="big-number">${formatNumber(a)} &nbsp; ? &nbsp; ${formatNumber(b)}</span>`;
+  const joinWord = state.lang === "zh" ? "和" : state.lang === "en" ? "and" : "dan";
+  ui.display.innerHTML = `<span class="big-number">${formatNumber(a)}</span><span class="number-words">${joinWord}</span><span class="big-number">${formatNumber(b)}</span>`;
   drawAxis(bounds.min, bounds.max, bounds.step);
   const same = a === b;
-  drawMarker(a, bounds.min, bounds.max, { color: "#176b58", label: formatNumber(a), caption: t("markerA"), y: same ? 105 : 128, symbol: "A" });
-  drawMarker(b, bounds.min, bounds.max, { color: "#3579b9", label: formatNumber(b), caption: t("markerB"), y: same ? 270 : 128, symbol: "B" });
-  ui.answer.innerHTML = ["<", "=", ">"].map(sign => `<button class="choice-btn" type="button" data-answer="${sign}">${sign}</button>`).join("");
+  drawMarker(a, bounds.min, bounds.max, { color: "#176b58", label: formatNumber(a), y: same ? 105 : 128 });
+  drawMarker(b, bounds.min, bounds.max, { color: "#3579b9", label: formatNumber(b), y: same ? 270 : 128 });
+  setSpokenAnswer("");
+  if (same) {
+    ui.answer.innerHTML = "";
+    clearFeedback(t("differentNumbers"));
+    return;
+  }
+  ui.answer.innerHTML = [
+    { value: "<", label: t("lessThan") },
+    { value: ">", label: t("greaterThan") }
+  ].map(choice => `<button class="choice-btn word-choice" type="button" data-answer="${choice.value}">${choice.label}</button>`).join("");
   ui.answer.querySelectorAll("[data-answer]").forEach(button => button.addEventListener("click", () => checkCompare(button.dataset.answer)));
-  clearFeedback(same ? t("samePlace") : t("compareHint"));
+  clearFeedback(t("compareHint"));
 }
 
 function checkCompare(answer) {
   const { a, b } = state.compare;
-  const correct = a < b ? "<" : a > b ? ">" : "=";
-  showFeedback(answer === correct ? t("compareCorrect", formatNumber(a), correct, formatNumber(b)) : t("tryAgain"), answer === correct);
+  const correctAnswer = a < b ? "<" : ">";
+  const relation = correctAnswer === "<" ? t("lessThan") : t("greaterThan");
+  const isCorrect = answer === correctAnswer;
+  showFeedback(isCorrect ? t("compareCorrect", formatNumber(a), relation, formatNumber(b)) : t("tryAgain"), isCorrect);
+  setSpokenAnswer(isCorrect ? spokenComparison(a, relation, b) : "");
 }
 
 function roundingDetails() {
@@ -437,6 +473,7 @@ function renderRounding() {
   const choices = details.exact ? [details.lower, value, details.upper] : [details.lower, details.upper];
   ui.answer.innerHTML = choices.map(choice => `<button class="choice-btn" type="button" data-answer="${choice}">${formatNumber(choice)}</button>`).join("");
   ui.answer.querySelectorAll("[data-answer]").forEach(button => button.addEventListener("click", () => checkRounding(Number(button.dataset.answer))));
+  setSpokenAnswer("");
   clearFeedback(t("roundHint"));
 }
 
@@ -447,6 +484,7 @@ function checkRounding(answer) {
     ? t("roundCorrect", formatNumber(state.rounding.value), formatNumber(details.correct))
     : `${t("tryAgain")} ${t("roundExplain", formatNumber(details.lower), formatNumber(details.upper))}`;
   showFeedback(message, correct);
+  setSpokenAnswer(correct ? numberWords(details.correct) : "");
 }
 
 function patternValues() {
@@ -475,9 +513,11 @@ function renderPattern() {
     if (answerInput.value === "") return;
     const correct = Number(answerInput.value) === answer;
     showFeedback(correct ? t("patternCorrect", formatNumber(answer)) : t("tryAgain"), correct);
+    setSpokenAnswer(correct ? numberWords(answer) : "");
   };
   document.getElementById("checkPattern").addEventListener("click", check);
   answerInput.addEventListener("keydown", event => { if (event.key === "Enter") check(); });
+  setSpokenAnswer("");
   clearFeedback(t("patternHint"));
 }
 
@@ -491,7 +531,7 @@ function makeNewQuestion() {
   } else if (state.mode === "compare") {
     const limit = [100, 1000, 10000][randomInt(0, 2)];
     state.compare.a = randomInt(0, limit);
-    state.compare.b = Math.random() < .15 ? state.compare.a : randomInt(0, limit);
+    do { state.compare.b = randomInt(0, limit); } while (state.compare.b === state.compare.a);
   } else if (state.mode === "rounding") {
     const base = [10, 100, 1000][randomInt(0, 2)];
     const maximum = base === 1000 ? 9999 : base * 20;
@@ -539,11 +579,38 @@ ui.line.addEventListener("pointerdown", event => {
 });
 
 ui.newQuestion.addEventListener("click", makeNewQuestion);
+
+let speechVoices = [];
+function refreshSpeechVoices() {
+  speechVoices = "speechSynthesis" in window ? window.speechSynthesis.getVoices() : [];
+}
+
+function chooseSpeechVoice() {
+  if (!speechVoices.length) refreshSpeechVoices();
+  if (state.lang === "en") {
+    const englishVoices = speechVoices.filter(voice => voice.lang.toLowerCase().startsWith("en"));
+    const preferredFemaleNames = ["jenny", "aria", "zira", "samantha", "ava", "emma", "libby", "hazel", "susan", "female"];
+    for (const name of preferredFemaleNames) {
+      const match = englishVoices.find(voice => voice.name.toLowerCase().includes(name));
+      if (match) return match;
+    }
+    return englishVoices[0] || null;
+  }
+  const languageCode = state.lang === "zh" ? "zh" : "ms";
+  return speechVoices.find(voice => voice.lang.toLowerCase().startsWith(languageCode)) || null;
+}
+
+refreshSpeechVoices();
+if ("speechSynthesis" in window) window.speechSynthesis.addEventListener("voiceschanged", refreshSpeechVoices);
 ui.speak.addEventListener("click", () => {
-  if (!("speechSynthesis" in window)) return;
+  if (!("speechSynthesis" in window) || !state.spokenAnswer) return;
   window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(`${ui.prompt.textContent} ${ui.display.textContent}`);
-  utterance.lang = state.lang === "zh" ? "zh-CN" : state.lang === "en" ? "en-US" : "ms-MY";
+  const utterance = new SpeechSynthesisUtterance(state.spokenAnswer);
+  const voice = chooseSpeechVoice();
+  if (voice) utterance.voice = voice;
+  utterance.lang = voice?.lang || (state.lang === "zh" ? "zh-CN" : state.lang === "en" ? "en-US" : "ms-MY");
+  utterance.rate = .9;
+  utterance.pitch = state.lang === "en" ? 1.05 : 1;
   window.speechSynthesis.speak(utterance);
 });
 

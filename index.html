@@ -13,8 +13,8 @@
       <div class="brand">
         <span class="brand-icon" aria-hidden="true">↔</span>
         <div>
-          <h1 data-i18n="appTitle">Garis Nombor Pintar</h1>
-          <p data-i18n="appSubtitle">Teroka nombor dengan melihat, bergerak dan mencuba.</p>
+          <h1 data-i18n="appTitle">Jom Main Garis Nombor!</h1>
+          <p data-i18n="appSubtitle">Lihat, tekan dan cari jawapan.</p>
         </div>
       </div>
       <div class="language-switch" role="group" aria-label="Language">
@@ -27,24 +27,24 @@
     <main>
       <nav class="mode-tabs" id="modeTabs" aria-label="Learning modes">
         <button class="mode-tab active" type="button" data-mode="explore" aria-pressed="true">
-          <span aria-hidden="true">🔎</span><span data-i18n="modeExplore">Teroka</span>
+          <span aria-hidden="true">🔎</span><span data-i18n="modeExplore">Kenal Nombor</span>
         </button>
         <button class="mode-tab" type="button" data-mode="compare" aria-pressed="false">
-          <span aria-hidden="true">⚖</span><span data-i18n="modeCompare">Banding</span>
+          <span aria-hidden="true">👀</span><span data-i18n="modeCompare">Mana Lebih Besar?</span>
         </button>
         <button class="mode-tab" type="button" data-mode="rounding" aria-pressed="false">
-          <span aria-hidden="true">🎯</span><span data-i18n="modeRounding">Bundar</span>
+          <span aria-hidden="true">🎯</span><span data-i18n="modeRounding">Nombor Terdekat</span>
         </button>
         <button class="mode-tab" type="button" data-mode="pattern" aria-pressed="false">
-          <span aria-hidden="true">🧩</span><span data-i18n="modePattern">Pola</span>
+          <span aria-hidden="true">🧩</span><span data-i18n="modePattern">Cari Pola</span>
         </button>
       </nav>
 
       <section class="workspace">
         <aside class="control-panel" aria-labelledby="modeTitle">
           <div class="panel-heading">
-            <span class="eyebrow" data-i18n="controls">Kawalan</span>
-            <h2 id="modeTitle">Teroka nombor</h2>
+            <span class="eyebrow" data-i18n="controls">Pilih nombor</span>
+            <h2 id="modeTitle">Kenal nombor</h2>
           </div>
           <div id="controlsHost"></div>
           <button class="secondary-btn full-width" id="newQuestionBtn" type="button">
@@ -55,10 +55,12 @@
         <section class="visual-panel" aria-labelledby="promptText">
           <div class="prompt-row">
             <div>
-              <span class="eyebrow" data-i18n="yourTask">Tugasan kamu</span>
+              <span class="eyebrow" data-i18n="yourTask">Mari cuba!</span>
               <h2 id="promptText">Pilih satu nombor pada garis nombor.</h2>
             </div>
-            <button class="icon-btn" id="speakBtn" type="button" aria-label="Read aloud">🔊</button>
+            <button class="speak-answer-btn" id="speakBtn" type="button" disabled>
+              <span aria-hidden="true">🔊</span><span data-i18n="speakAnswer">Dengar jawapan</span>
+            </button>
           </div>
 
           <div class="number-display" id="numberDisplay" aria-live="polite"></div>
