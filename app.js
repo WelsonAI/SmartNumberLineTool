@@ -15,7 +15,9 @@ const ui = {
   answer: document.getElementById("answerArea"),
   feedback: document.getElementById("feedback"),
   newQuestion: document.getElementById("newQuestionBtn"),
-  speak: document.getElementById("speakBtn")
+  speak: document.getElementById("speakBtn"),
+  sound: document.getElementById("soundToggle"),
+  celebration: document.getElementById("celebrationLayer")
 };
 
 const messages = {
@@ -25,7 +27,7 @@ const messages = {
     modeExplore: "Kenal Nombor", modeCompare: "Mana Lebih Besar?", modeRounding: "Nombor Terdekat", modePattern: "Cari Pola",
     controls: "Pilih nombor", yourTask: "Mari cuba!", newQuestion: "Cuba soalan lain",
     stepLook: "Lihat garis nombor", stepThink: "Pilih jawapan", stepAnswer: "Semak terus",
-    speakAnswer: "Dengar jawapan", speakNumber: "Dengar nombor",
+    speakAnswer: "Dengar jawapan", speakNumber: "Dengar nombor", soundOn: "Bunyi: Buka", soundOff: "Bunyi: Tutup",
     titleExplore: "Kenal nombor", titleCompare: "Mana lebih besar?", titleRounding: "Cari nombor terdekat", titlePattern: "Cari pola",
     promptExplore: "Tekan pada garis nombor untuk memilih nombor.",
     promptCompare: (a, b) => `Lihat ${a} dan ${b}. Yang mana lebih besar?`,
@@ -50,7 +52,7 @@ const messages = {
     modeExplore: "认识数字", modeCompare: "谁比较大？", modeRounding: "找最近的数", modePattern: "找规律",
     controls: "选择数字", yourTask: "来试一试！", newQuestion: "换一题",
     stepLook: "看数轴", stepThink: "选答案", stepAnswer: "马上检查",
-    speakAnswer: "听答案", speakNumber: "听数字",
+    speakAnswer: "听答案", speakNumber: "听数字", soundOn: "声音：开", soundOff: "声音：关",
     titleExplore: "认识数字", titleCompare: "谁比较大？", titleRounding: "找最近的数", titlePattern: "找规律",
     promptExplore: "点击数轴，选择一个数字。", promptCompare: (a, b) => `看看 ${a} 和 ${b}，哪一个比较大？`,
     promptRounding: (n, base) => `${n} 比较靠近哪一个整${base === 10 ? "十" : base === 100 ? "百" : "千"}数？`,
@@ -71,7 +73,7 @@ const messages = {
     modeExplore: "Know Numbers", modeCompare: "Which Is Bigger?", modeRounding: "Nearest Number", modePattern: "Find the Pattern",
     controls: "Choose numbers", yourTask: "Let's try!", newQuestion: "Try another one",
     stepLook: "Look at the line", stepThink: "Choose an answer", stepAnswer: "Check it",
-    speakAnswer: "Hear the answer", speakNumber: "Hear the number",
+    speakAnswer: "Hear the answer", speakNumber: "Hear the number", soundOn: "Sound: On", soundOff: "Sound: Off",
     titleExplore: "Know numbers", titleCompare: "Which is bigger?", titleRounding: "Find the nearest number", titlePattern: "Find the pattern",
     promptExplore: "Tap the number line to choose a number.", promptCompare: (a, b) => `Look at ${a} and ${b}. Which is bigger?`,
     promptRounding: (n, base) => `Which multiple of ${base} is ${n} closer to?`, promptPattern: "Which number is missing?",
@@ -92,6 +94,7 @@ const state = {
   lang: "bm",
   mode: "explore",
   spokenAnswer: "",
+  soundEnabled: readSoundPreference(),
   explore: { range: 100, value: 37, step: 1 },
   compare: { a: 38, b: 64 },
   rounding: { value: 237, base: 10 },
@@ -111,6 +114,83 @@ function formatNumber(value) {
 function clamp(value, min, max) { return Math.min(max, Math.max(min, value)); }
 function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
+function readSoundPreference() {
+  try { return localStorage.getItem("number-line-sound") !== "off"; }
+  catch { return true; }
+}
+
+function saveSoundPreference() {
+  try { localStorage.setItem("number-line-sound", state.soundEnabled ? "on" : "off"); }
+  catch { /* Sound still works when storage is unavailable. */ }
+}
+
+function updateSoundToggle() {
+  if (!ui.sound) return;
+  ui.sound.setAttribute("aria-pressed", String(state.soundEnabled));
+  ui.sound.innerHTML = `<span aria-hidden="true">${state.soundEnabled ? "🔊" : "🔇"}</span><span>${t(state.soundEnabled ? "soundOn" : "soundOff")}</span>`;
+}
+
+let soundContext = null;
+function getSoundContext() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return null;
+  if (!soundContext) soundContext = new AudioContextClass();
+  if (soundContext.state === "suspended") soundContext.resume().catch(() => {});
+  return soundContext;
+}
+
+function playNote(context, frequency, start, duration, volume, type = "sine") {
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(frequency, start);
+  gain.gain.setValueAtTime(.001, start);
+  gain.gain.exponentialRampToValueAtTime(volume, start + .01);
+  gain.gain.exponentialRampToValueAtTime(.001, start + duration);
+  oscillator.connect(gain).connect(context.destination);
+  oscillator.start(start);
+  oscillator.stop(start + duration + .02);
+}
+
+function playUiSound(type, value = 0) {
+  if (!state.soundEnabled) return;
+  const context = getSoundContext();
+  if (!context) return;
+  const now = context.currentTime;
+  if (type === "click") playNote(context, 520, now, .055, .045, "sine");
+  if (type === "move") playNote(context, 390 + (Math.abs(value) % 8) * 35, now, .075, .065, "sine");
+  if (type === "new") {
+    playNote(context, 390, now, .09, .07, "sine");
+    playNote(context, 520, now + .07, .11, .075, "sine");
+  }
+  if (type === "correct") {
+    [[523, 0], [659, .09], [784, .18]].forEach(([frequency, offset]) => playNote(context, frequency, now + offset, .16, .095, "sine"));
+  }
+  if (type === "wrong") {
+    playNote(context, 230, now, .12, .06, "triangle");
+    playNote(context, 185, now + .1, .16, .055, "triangle");
+  }
+}
+
+function celebrate() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  ui.celebration.replaceChildren();
+  const colors = ["#ffca4f", "#35a58c", "#3579b9", "#f06f61", "#8d63c7"];
+  for (let index = 0; index < 20; index += 1) {
+    const piece = document.createElement("span");
+    piece.className = "confetti-piece";
+    const angle = (Math.PI * 2 * index) / 20 + Math.random() * .25;
+    const distance = 110 + Math.random() * 180;
+    piece.style.setProperty("--confetti-x", `${Math.cos(angle) * distance}px`);
+    piece.style.setProperty("--confetti-y", `${Math.sin(angle) * distance}px`);
+    piece.style.setProperty("--confetti-r", `${randomInt(-300, 300)}deg`);
+    piece.style.setProperty("--confetti-color", colors[index % colors.length]);
+    piece.style.animationDelay = `${Math.random() * 70}ms`;
+    ui.celebration.append(piece);
+  }
+  window.setTimeout(() => ui.celebration.replaceChildren(), 900);
+}
+
 function svgElement(name, attributes = {}, text = "") {
   const element = document.createElementNS(SVG_NS, name);
   Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
@@ -126,6 +206,8 @@ function clearFeedback(message) {
 function showFeedback(message, success) {
   ui.feedback.className = `feedback ${success ? "success" : "error"}`;
   ui.feedback.textContent = message;
+  playUiSound(success ? "correct" : "wrong");
+  if (success) celebrate();
 }
 
 function setSpokenAnswer(text) {
@@ -153,6 +235,7 @@ function setStaticTranslations() {
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
   });
+  updateSoundToggle();
 }
 
 function numberToEnglish(n) {
@@ -264,13 +347,15 @@ function drawMarker(value, min, max, options = {}) {
   const x = xFor(value, min, max);
   const y = options.y || 128;
   const color = options.color || "#176b58";
-  ui.lineLayer.append(
+  const group = svgElement("g", { class: "marker-group" });
+  group.append(
     svgElement("line", { x1: x, y1: y + 24, x2: x, y2: LINE_Y - 8, class: "marker-line", stroke: color }),
     svgElement("circle", { cx: x, cy: y, r: 22, class: options.question ? "question-marker" : "marker-circle", fill: color }),
     svgElement("text", { x, y: y + 7, fill: options.question ? "#173b35" : "#ffffff", "font-size": 22, "font-weight": 900, "text-anchor": "middle" }, options.question ? "?" : options.symbol || "●"),
     svgElement("text", { x, y: y - 35, class: "marker-label" }, options.label || formatNumber(value))
   );
-  if (options.caption) ui.lineLayer.append(svgElement("text", { x, y: y - 61, class: "marker-caption" }, options.caption));
+  if (options.caption) group.append(svgElement("text", { x, y: y - 61, class: "marker-caption" }, options.caption));
+  ui.lineLayer.append(group);
 }
 
 function controlsForExplore() {
@@ -343,17 +428,20 @@ function bindControls() {
     valueInput.addEventListener("input", () => {
       if (valueInput.value === "") return;
       state.explore.value = clamp(Math.round(Number(valueInput.value)), 0, state.explore.range);
+      playUiSound("move", state.explore.value);
       renderActivity();
     });
     stepInput.addEventListener("change", () => { state.explore.step = Number(stepInput.value); });
     document.getElementById("stepDown").addEventListener("click", () => {
       state.explore.value = clamp(state.explore.value - state.explore.step, 0, state.explore.range);
       valueInput.value = state.explore.value;
+      playUiSound("move", state.explore.value);
       renderActivity();
     });
     document.getElementById("stepUp").addEventListener("click", () => {
       state.explore.value = clamp(state.explore.value + state.explore.step, 0, state.explore.range);
       valueInput.value = state.explore.value;
+      playUiSound("move", state.explore.value);
       renderActivity();
     });
   }
@@ -526,6 +614,7 @@ function renderActivity() {
 }
 
 function makeNewQuestion() {
+  playUiSound("new");
   if (state.mode === "explore") {
     state.explore.value = randomInt(0, state.explore.range);
   } else if (state.mode === "compare") {
@@ -575,10 +664,29 @@ ui.line.addEventListener("pointerdown", event => {
   state.explore.value = clamp(Math.round((ratio * state.explore.range) / state.explore.step) * state.explore.step, 0, state.explore.range);
   const input = document.getElementById("exploreValue");
   if (input) input.value = state.explore.value;
+  playUiSound("move", state.explore.value);
   renderActivity();
 });
 
 ui.newQuestion.addEventListener("click", makeNewQuestion);
+ui.sound.addEventListener("click", () => {
+  state.soundEnabled = !state.soundEnabled;
+  saveSoundPreference();
+  updateSoundToggle();
+  if (state.soundEnabled) playUiSound("click");
+});
+
+document.addEventListener("click", event => {
+  const button = event.target.closest("button");
+  if (!button) return;
+  const excludedIds = ["soundToggle", "newQuestionBtn", "stepDown", "stepUp", "speakBtn", "checkPattern"];
+  if (excludedIds.includes(button.id) || button.hasAttribute("data-answer")) return;
+  playUiSound("click");
+});
+
+document.addEventListener("change", event => {
+  if (event.target.matches("select")) playUiSound("click");
+});
 
 let speechVoices = [];
 function refreshSpeechVoices() {

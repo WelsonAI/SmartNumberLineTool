@@ -17,10 +17,15 @@
           <p data-i18n="appSubtitle">Lihat, tekan dan cari jawapan.</p>
         </div>
       </div>
-      <div class="language-switch" role="group" aria-label="Language">
-        <button class="language-btn active" type="button" data-lang="bm" aria-pressed="true">BM</button>
-        <button class="language-btn" type="button" data-lang="zh" aria-pressed="false">中文</button>
-        <button class="language-btn" type="button" data-lang="en" aria-pressed="false">EN</button>
+      <div class="header-actions">
+        <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true">
+          <span aria-hidden="true">🔊</span><span data-i18n="soundOn">Bunyi: Buka</span>
+        </button>
+        <div class="language-switch" role="group" aria-label="Language">
+          <button class="language-btn active" type="button" data-lang="bm" aria-pressed="true">BM</button>
+          <button class="language-btn" type="button" data-lang="zh" aria-pressed="false">中文</button>
+          <button class="language-btn" type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
       </div>
     </header>
 
@@ -53,6 +58,7 @@
         </aside>
 
         <section class="visual-panel" aria-labelledby="promptText">
+          <div class="celebration-layer" id="celebrationLayer" aria-hidden="true"></div>
           <div class="prompt-row">
             <div>
               <span class="eyebrow" data-i18n="yourTask">Mari cuba!</span>

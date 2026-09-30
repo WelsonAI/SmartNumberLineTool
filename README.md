@@ -9,6 +9,9 @@ A multilingual interactive number-line learning tool for primary mathematics.
 - Round to the nearest 10, 100, or 1,000
 - Complete increasing and decreasing number patterns
 - Bahasa Melayu, Chinese, and English interface
+- Optional click, movement, answer, and new-question sound effects
+- Spoken answers with a preferred female English system voice
+- Shared warm yellow background used by the abacus tool
 - Responsive keyboard- and touch-friendly layout
 
 ## Run
