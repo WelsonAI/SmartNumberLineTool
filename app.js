@@ -34,6 +34,7 @@ const messages = {
     promptRounding: (n, base) => `${n} lebih dekat kepada ${base === 10 ? "puluh" : base === 100 ? "ratus" : "ribu"} yang mana?`,
     promptPattern: "Nombor apa yang hilang?",
     range: "Julat nombor", number: "Nombor", stepSize: "Saiz langkah", firstNumber: "Nombor pertama", secondNumber: "Nombor kedua",
+    level: "Tahap", easyLevel: "Mudah (0–100)", d2Level: "D2 (0–1,000)", d3Level: "D3 (0–10,000)",
     roundingTo: "Bundar kepada", nearest10: "Puluh terdekat", nearest100: "Ratus terdekat", nearest1000: "Ribu terdekat",
     start: "Nombor mula", difference: "Perbezaan", direction: "Arah pola", increasing: "Menaik", decreasing: "Menurun",
     selected: "Nombor dipilih", clickHint: "Tekan garis atau butang + dan −.",
@@ -58,6 +59,7 @@ const messages = {
     promptRounding: (n, base) => `${n} 比较靠近哪一个整${base === 10 ? "十" : base === 100 ? "百" : "千"}数？`,
     promptPattern: "少了哪一个数字？",
     range: "数字范围", number: "数字", stepSize: "每次移动", firstNumber: "第一个数", secondNumber: "第二个数",
+    level: "等级", easyLevel: "简单（0–100）", d2Level: "二年级（0–1,000）", d3Level: "三年级（0–10,000）",
     roundingTo: "取整单位", nearest10: "最接近的十", nearest100: "最接近的百", nearest1000: "最接近的千",
     start: "开始数字", difference: "相差", direction: "规律方向", increasing: "递增", decreasing: "递减",
     selected: "已选择", clickHint: "点击数轴，或使用 + 和 −。", compareHint: "选择“大过”或“小过”。",
@@ -78,6 +80,7 @@ const messages = {
     promptExplore: "Tap the number line to choose a number.", promptCompare: (a, b) => `Look at ${a} and ${b}. Which is bigger?`,
     promptRounding: (n, base) => `Which multiple of ${base} is ${n} closer to?`, promptPattern: "Which number is missing?",
     range: "Number range", number: "Number", stepSize: "Step size", firstNumber: "First number", secondNumber: "Second number",
+    level: "Level", easyLevel: "Easy (0–100)", d2Level: "D2 (0–1,000)", d3Level: "D3 (0–10,000)",
     roundingTo: "Round to", nearest10: "Nearest 10", nearest100: "Nearest 100", nearest1000: "Nearest 1,000",
     start: "Starting number", difference: "Difference", direction: "Pattern direction", increasing: "Increasing", decreasing: "Decreasing",
     selected: "Selected number", clickHint: "Tap the line, or use + and −.", compareHint: "Choose ‘smaller’ or ‘bigger’.",
@@ -96,9 +99,9 @@ const state = {
   spokenAnswer: "",
   soundEnabled: readSoundPreference(),
   explore: { range: 100, value: 37, step: 1 },
-  compare: { a: 38, b: 64 },
+  compare: { a: 538, b: 764, level: 1000 },
   rounding: { value: 237, base: 10 },
-  pattern: { start: 120, step: 5, direction: 1, missingIndex: 3 }
+  pattern: { start: 120, step: 5, direction: 1, missingIndex: 3, level: 1000 }
 };
 
 function t(key, ...args) {
@@ -386,9 +389,17 @@ function controlsForExplore() {
 
 function controlsForCompare() {
   return `
+    <div class="field">
+      <label for="compareLevel">${t("level")}</label>
+      <select id="compareLevel">
+        <option value="100" ${state.compare.level === 100 ? "selected" : ""}>${t("easyLevel")}</option>
+        <option value="1000" ${state.compare.level === 1000 ? "selected" : ""}>${t("d2Level")}</option>
+        <option value="10000" ${state.compare.level === 10000 ? "selected" : ""}>${t("d3Level")}</option>
+      </select>
+    </div>
     <div class="field-row">
-      <div class="field"><label for="compareA">${t("firstNumber")}</label><input id="compareA" type="number" min="0" max="10000" value="${state.compare.a}"></div>
-      <div class="field"><label for="compareB">${t("secondNumber")}</label><input id="compareB" type="number" min="0" max="10000" value="${state.compare.b}"></div>
+      <div class="field"><label for="compareA">${t("firstNumber")}</label><input id="compareA" type="number" min="0" max="${state.compare.level}" value="${state.compare.a}"></div>
+      <div class="field"><label for="compareB">${t("secondNumber")}</label><input id="compareB" type="number" min="0" max="${state.compare.level}" value="${state.compare.b}"></div>
     </div>`;
 }
 
@@ -406,13 +417,34 @@ function controlsForRounding() {
 
 function controlsForPattern() {
   return `
-    <div class="field-row">
-      <div class="field"><label for="patternStart">${t("start")}</label><input id="patternStart" type="number" min="0" max="10000" value="${state.pattern.start}"></div>
-      <div class="field"><label for="patternStep">${t("difference")}</label><input id="patternStep" type="number" min="1" max="1000" value="${state.pattern.step}"></div>
-    </div>
-    <div class="field"><label for="patternDirection">${t("direction")}</label>
-      <select id="patternDirection"><option value="1" ${state.pattern.direction === 1 ? "selected" : ""}>${t("increasing")}</option><option value="-1" ${state.pattern.direction === -1 ? "selected" : ""}>${t("decreasing")}</option></select>
+    <div class="field">
+      <label for="patternLevel">${t("level")}</label>
+      <select id="patternLevel">
+        <option value="100" ${state.pattern.level === 100 ? "selected" : ""}>${t("easyLevel")}</option>
+        <option value="1000" ${state.pattern.level === 1000 ? "selected" : ""}>${t("d2Level")}</option>
+        <option value="10000" ${state.pattern.level === 10000 ? "selected" : ""}>${t("d3Level")}</option>
+      </select>
     </div>`;
+}
+
+function generateCompareQuestion() {
+  const { level } = state.compare;
+  state.compare.a = randomInt(0, level);
+  do { state.compare.b = randomInt(0, level); } while (state.compare.b === state.compare.a);
+}
+
+function generatePatternQuestion() {
+  const { level } = state.pattern;
+  const stepChoices = level === 100
+    ? [1, 2, 5, 10, 20]
+    : level === 1000
+      ? [2, 5, 10, 20, 25, 50, 100, 200]
+      : [10, 25, 50, 100, 200, 250, 500, 1000, 2000];
+  const step = stepChoices[randomInt(0, stepChoices.length - 1)];
+  const direction = Math.random() < .5 ? 1 : -1;
+  const span = step * 4;
+  const start = direction === 1 ? randomInt(0, level - span) : randomInt(span, level);
+  state.pattern = { level, start, step, direction, missingIndex: randomInt(1, 3) };
 }
 
 function bindControls() {
@@ -447,11 +479,18 @@ function bindControls() {
   }
 
   if (state.mode === "compare") {
+    const levelInput = document.getElementById("compareLevel");
+    levelInput.addEventListener("change", () => {
+      state.compare.level = Number(levelInput.value);
+      generateCompareQuestion();
+      renderMode();
+    });
     ["A", "B"].forEach(letter => {
       const input = document.getElementById(`compare${letter}`);
       input.addEventListener("input", () => {
         if (input.value === "") return;
-        state.compare[letter.toLowerCase()] = clamp(Math.round(Number(input.value)), 0, 10000);
+        state.compare[letter.toLowerCase()] = clamp(Math.round(Number(input.value)), 0, state.compare.level);
+        input.value = state.compare[letter.toLowerCase()];
         renderActivity();
       });
     });
@@ -469,22 +508,11 @@ function bindControls() {
   }
 
   if (state.mode === "pattern") {
-    const startInput = document.getElementById("patternStart");
-    const stepInput = document.getElementById("patternStep");
-    const directionInput = document.getElementById("patternDirection");
-    const update = () => {
-      if (startInput.value !== "") state.pattern.start = clamp(Math.round(Number(startInput.value)), 0, 10000);
-      if (stepInput.value !== "") state.pattern.step = clamp(Math.round(Number(stepInput.value)), 1, 1000);
-      state.pattern.direction = Number(directionInput.value);
-      if (state.pattern.direction < 0 && state.pattern.start < state.pattern.step * 4) {
-        state.pattern.start = state.pattern.step * 4;
-        startInput.value = state.pattern.start;
-      }
-      renderActivity();
-    };
-    startInput.addEventListener("input", update);
-    stepInput.addEventListener("input", update);
-    directionInput.addEventListener("change", update);
+    document.getElementById("patternLevel").addEventListener("change", event => {
+      state.pattern.level = Number(event.target.value);
+      generatePatternQuestion();
+      renderMode();
+    });
   }
 }
 
@@ -580,21 +608,37 @@ function patternValues() {
   return Array.from({ length: 5 }, (_, index) => start + step * direction * index);
 }
 
+function drawPatternTrack(values, missingIndex, reveal = false) {
+  const positions = [100, 300, 500, 700, 900];
+  const y = 165;
+  ui.lineLayer.replaceChildren();
+
+  positions.slice(0, -1).forEach((x, index) => {
+    const nextX = positions[index + 1];
+    ui.lineLayer.append(
+      svgElement("line", { x1: x + 75, y1: y, x2: nextX - 84, y2: y, class: "sequence-connector" }),
+      svgElement("path", { d: `M ${nextX - 84} ${y - 10} L ${nextX - 68} ${y} L ${nextX - 84} ${y + 10} Z`, class: "sequence-arrow" })
+    );
+  });
+
+  values.forEach((value, index) => {
+    const hidden = index === missingIndex && !reveal;
+    const group = svgElement("g", { class: `sequence-card${hidden ? " is-missing" : ""}${index === missingIndex && reveal ? " is-revealed" : ""}` });
+    group.append(
+      svgElement("rect", { x: positions[index] - 65, y: y - 49, width: 130, height: 98, rx: 24, class: "sequence-card-bg" }),
+      svgElement("circle", { cx: positions[index], cy: y - 67, r: 17, class: "sequence-dot" }),
+      svgElement("text", { x: positions[index], y: y + 10, class: "sequence-value" }, hidden ? "?" : formatNumber(value))
+    );
+    ui.lineLayer.append(group);
+  });
+}
+
 function renderPattern() {
   const values = patternValues();
   const answer = values[state.pattern.missingIndex];
-  const bounds = niceBounds(values);
   ui.prompt.textContent = t("promptPattern");
-  ui.display.innerHTML = values.map((value, index) => `<span class="choice-btn">${index === state.pattern.missingIndex ? "?" : formatNumber(value)}</span>`).join("");
-  drawAxis(bounds.min, bounds.max, bounds.step);
-  values.forEach((value, index) => {
-    drawMarker(value, bounds.min, bounds.max, {
-      color: index === state.pattern.missingIndex ? "#ffd568" : "#176b58",
-      label: index === state.pattern.missingIndex ? t("missing") : formatNumber(value),
-      question: index === state.pattern.missingIndex,
-      y: index % 2 === 0 ? 124 : 112
-    });
-  });
+  ui.display.innerHTML = values.map((value, index) => `<span class="pattern-chip${index === state.pattern.missingIndex ? " is-missing" : ""}">${index === state.pattern.missingIndex ? "?" : formatNumber(value)}</span>`).join("");
+  drawPatternTrack(values, state.pattern.missingIndex);
   ui.answer.innerHTML = `<input class="answer-input" id="patternAnswer" type="number" aria-label="${t("enterAnswer")}" placeholder="${t("enterAnswer")}"><button class="primary-btn" id="checkPattern" type="button">${t("check")}</button>`;
   const answerInput = document.getElementById("patternAnswer");
   const check = () => {
@@ -602,6 +646,11 @@ function renderPattern() {
     const correct = Number(answerInput.value) === answer;
     showFeedback(correct ? t("patternCorrect", formatNumber(answer)) : t("tryAgain"), correct);
     setSpokenAnswer(correct ? numberWords(answer) : "");
+    if (correct) {
+      drawPatternTrack(values, state.pattern.missingIndex, true);
+      ui.display.querySelector(".is-missing").textContent = formatNumber(answer);
+      ui.display.querySelector(".is-missing").classList.add("is-revealed");
+    }
   };
   document.getElementById("checkPattern").addEventListener("click", check);
   answerInput.addEventListener("keydown", event => { if (event.key === "Enter") check(); });
@@ -618,9 +667,7 @@ function makeNewQuestion() {
   if (state.mode === "explore") {
     state.explore.value = randomInt(0, state.explore.range);
   } else if (state.mode === "compare") {
-    const limit = [100, 1000, 10000][randomInt(0, 2)];
-    state.compare.a = randomInt(0, limit);
-    do { state.compare.b = randomInt(0, limit); } while (state.compare.b === state.compare.a);
+    generateCompareQuestion();
   } else if (state.mode === "rounding") {
     const base = [10, 100, 1000][randomInt(0, 2)];
     const maximum = base === 1000 ? 9999 : base * 20;
@@ -628,10 +675,7 @@ function makeNewQuestion() {
     if (value % base === 0) value = Math.min(maximum, value + randomInt(1, Math.max(1, base - 1)));
     state.rounding = { value, base };
   } else {
-    const step = [1, 2, 5, 10, 25, 50, 100][randomInt(0, 6)];
-    const direction = Math.random() < .5 ? 1 : -1;
-    const start = direction === 1 ? randomInt(0, Math.max(20, 1000 - step * 4)) : randomInt(step * 4, Math.max(step * 4, 1000));
-    state.pattern = { start, step, direction, missingIndex: randomInt(1, 3) };
+    generatePatternQuestion();
   }
   renderMode();
 }
