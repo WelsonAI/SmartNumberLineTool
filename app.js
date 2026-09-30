@@ -30,7 +30,7 @@ const messages = {
     speakAnswer: "Dengar jawapan", speakNumber: "Dengar nombor", soundOn: "Bunyi: Buka", soundOff: "Bunyi: Tutup",
     titleExplore: "Kenal nombor", titleCompare: "Mana lebih besar?", titleRounding: "Cari nombor terdekat", titlePattern: "Cari pola",
     promptExplore: "Tekan pada garis nombor untuk memilih nombor.",
-    promptCompare: (a, b) => `Lihat ${a} dan ${b}. Yang mana lebih besar?`,
+    promptCompare: (a, b) => `Bandingkan ${a} dan ${b}. Ayat mana yang betul?`,
     promptRounding: (n, base) => `${n} lebih dekat kepada ${base === 10 ? "puluh" : base === 100 ? "ratus" : "ribu"} yang mana?`,
     promptPattern: "Nombor apa yang hilang?",
     range: "Julat nombor", number: "Nombor", stepSize: "Saiz langkah", firstNumber: "Nombor pertama", secondNumber: "Nombor kedua",
@@ -38,7 +38,7 @@ const messages = {
     roundingTo: "Bundar kepada", nearest10: "Puluh terdekat", nearest100: "Ratus terdekat", nearest1000: "Ribu terdekat",
     start: "Nombor mula", difference: "Perbezaan", direction: "Arah pola", increasing: "Menaik", decreasing: "Menurun",
     selected: "Nombor dipilih", clickHint: "Tekan garis atau butang + dan −.",
-    compareHint: "Pilih ‘lebih besar’ atau ‘lebih kecil’.", roundHint: "Pilih jawapan yang paling dekat.", patternHint: "Taip nombor yang hilang.",
+    compareHint: "Pilih ayat perbandingan yang betul.", roundHint: "Pilih jawapan yang paling dekat.", patternHint: "Taip nombor yang hilang.",
     check: "Semak", correct: "Betul!", tryAgain: "Cuba lagi. Lihat kedudukan nombor pada garis.",
     lessThan: "lebih kecil", greaterThan: "lebih besar", differentNumbers: "Pilih dua nombor yang berlainan.",
     compareCorrect: (a, relation, b) => `Betul! ${a} ${relation} daripada ${b}.`,
@@ -55,14 +55,14 @@ const messages = {
     stepLook: "看数轴", stepThink: "选答案", stepAnswer: "马上检查",
     speakAnswer: "听答案", speakNumber: "听数字", soundOn: "声音：开", soundOff: "声音：关",
     titleExplore: "认识数字", titleCompare: "谁比较大？", titleRounding: "找最近的数", titlePattern: "找规律",
-    promptExplore: "点击数轴，选择一个数字。", promptCompare: (a, b) => `看看 ${a} 和 ${b}，哪一个比较大？`,
+    promptExplore: "点击数轴，选择一个数字。", promptCompare: (a, b) => `比较 ${a} 和 ${b}，哪一句是对的？`,
     promptRounding: (n, base) => `${n} 比较靠近哪一个整${base === 10 ? "十" : base === 100 ? "百" : "千"}数？`,
     promptPattern: "少了哪一个数字？",
     range: "数字范围", number: "数字", stepSize: "每次移动", firstNumber: "第一个数", secondNumber: "第二个数",
     level: "等级", easyLevel: "简单（0–100）", d2Level: "二年级（0–1,000）", d3Level: "三年级（0–10,000）",
     roundingTo: "取整单位", nearest10: "最接近的十", nearest100: "最接近的百", nearest1000: "最接近的千",
     start: "开始数字", difference: "相差", direction: "规律方向", increasing: "递增", decreasing: "递减",
-    selected: "已选择", clickHint: "点击数轴，或使用 + 和 −。", compareHint: "选择“大过”或“小过”。",
+    selected: "已选择", clickHint: "点击数轴，或使用 + 和 −。", compareHint: "请选择正确的比较句子。",
     roundHint: "选择最靠近的答案。", patternHint: "输入缺少的数字。", check: "检查",
     correct: "答对了！", tryAgain: "再试一次，看看数字在数轴上的位置。",
     lessThan: "小过", greaterThan: "大过", differentNumbers: "请选择两个不同的数字。",
@@ -77,13 +77,13 @@ const messages = {
     stepLook: "Look at the line", stepThink: "Choose an answer", stepAnswer: "Check it",
     speakAnswer: "Hear the answer", speakNumber: "Hear the number", soundOn: "Sound: On", soundOff: "Sound: Off",
     titleExplore: "Know numbers", titleCompare: "Which is bigger?", titleRounding: "Find the nearest number", titlePattern: "Find the pattern",
-    promptExplore: "Tap the number line to choose a number.", promptCompare: (a, b) => `Look at ${a} and ${b}. Which is bigger?`,
+    promptExplore: "Tap the number line to choose a number.", promptCompare: (a, b) => `Compare ${a} and ${b}. Which sentence is correct?`,
     promptRounding: (n, base) => `Which multiple of ${base} is ${n} closer to?`, promptPattern: "Which number is missing?",
     range: "Number range", number: "Number", stepSize: "Step size", firstNumber: "First number", secondNumber: "Second number",
     level: "Level", easyLevel: "Easy (0–100)", d2Level: "D2 (0–1,000)", d3Level: "D3 (0–10,000)",
     roundingTo: "Round to", nearest10: "Nearest 10", nearest100: "Nearest 100", nearest1000: "Nearest 1,000",
     start: "Starting number", difference: "Difference", direction: "Pattern direction", increasing: "Increasing", decreasing: "Decreasing",
-    selected: "Selected number", clickHint: "Tap the line, or use + and −.", compareHint: "Choose ‘smaller’ or ‘bigger’.",
+    selected: "Selected number", clickHint: "Tap the line, or use + and −.", compareHint: "Choose the correct comparison sentence.",
     roundHint: "Choose the nearest answer.", patternHint: "Type the missing number.", check: "Check",
     correct: "Correct!", tryAgain: "Try again. Look at the positions on the number line.",
     lessThan: "is smaller", greaterThan: "is bigger", differentNumbers: "Please choose two different numbers.",
@@ -228,6 +228,18 @@ function spokenComparison(a, relation, b) {
   return `${left} ${relation} daripada ${right}`;
 }
 
+function comparisonConnector(relation) {
+  if (state.lang === "zh") return relation;
+  return state.lang === "en" ? `${relation} than` : `${relation} daripada`;
+}
+
+function comparisonChoice(a, relation, b) {
+  return `
+    <span class="compare-choice-number first">${formatNumber(a)}</span>
+    <span class="compare-choice-relation">${comparisonConnector(relation)}</span>
+    <span class="compare-choice-number second">${formatNumber(b)}</span>`;
+}
+
 function setStaticTranslations() {
   document.documentElement.lang = state.lang === "zh" ? "zh-Hans" : state.lang === "en" ? "en" : "ms";
   document.querySelectorAll("[data-i18n]").forEach(element => {
@@ -332,6 +344,7 @@ function drawAxis(min, max, tickStep, midpoint = null) {
   }
 
   const count = Math.round((max - min) / tickStep);
+  const compact = window.matchMedia("(max-width: 560px)").matches;
   for (let i = 0; i <= count; i += 1) {
     const value = min + tickStep * i;
     const x = xFor(value, min, max);
@@ -340,7 +353,7 @@ function drawAxis(min, max, tickStep, midpoint = null) {
       x1: x, x2: x, y1: major ? LINE_Y - 19 : LINE_Y - 12, y2: major ? LINE_Y + 19 : LINE_Y + 12,
       class: major ? "tick major" : "tick"
     }));
-    if (major || count <= 10) {
+    if (major || (!compact && count <= 10)) {
       ui.lineLayer.append(svgElement("text", { x, y: 232, class: major ? "tick-label" : "minor-label" }, formatNumber(value)));
     }
   }
@@ -556,7 +569,7 @@ function renderCompare() {
   ui.answer.innerHTML = [
     { value: "<", label: t("lessThan") },
     { value: ">", label: t("greaterThan") }
-  ].map(choice => `<button class="choice-btn word-choice" type="button" data-answer="${choice.value}">${choice.label}</button>`).join("");
+  ].map(choice => `<button class="choice-btn word-choice" type="button" data-answer="${choice.value}">${comparisonChoice(a, choice.label, b)}</button>`).join("");
   ui.answer.querySelectorAll("[data-answer]").forEach(button => button.addEventListener("click", () => checkCompare(button.dataset.answer)));
   clearFeedback(t("compareHint"));
 }

@@ -22,6 +22,7 @@
 * { box-sizing: border-box; }
 
 body {
+  position: relative;
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
@@ -304,7 +305,19 @@ input:focus, select:focus { border-color: #ef9837; box-shadow: 0 0 0 4px rgba(25
   box-shadow: 0 5px 12px rgba(23, 59, 53, .08);
 }
 .choice-btn:hover { transform: translateY(-1px); border-color: #5f431c; background: #fff3ca; }
-.choice-btn.word-choice { min-width: 160px; padding-inline: 22px; font-size: 18px; }
+.choice-btn.word-choice {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-width: 275px;
+  padding-inline: 18px;
+  font-size: 16px;
+}
+.compare-choice-number { font-size: 20px; font-weight: 900; }
+.compare-choice-number.first { color: var(--green); }
+.compare-choice-number.second { color: var(--blue); }
+.compare-choice-relation { color: var(--ink); font-weight: 850; }
 .answer-input { width: min(220px, 55vw); font-size: 19px; text-align: center; }
 
 .pattern-chip {
@@ -454,6 +467,7 @@ input:focus, select:focus { border-color: #ef9837; box-shadow: 0 0 0 4px rgba(25
 }
 
 @media (max-width: 560px) {
+  body { overflow-x: hidden; }
   .topbar { flex-direction: column; }
   .header-actions { width: 100%; align-items: stretch; }
   .sound-toggle { min-width: 50px; }
@@ -465,16 +479,33 @@ input:focus, select:focus { border-color: #ef9837; box-shadow: 0 0 0 4px rgba(25
   .control-panel { display: flex; align-items: stretch; }
   #controlsHost { display: block; }
   .full-width { width: 100%; margin: 0; }
-  .number-line-frame { min-height: 220px; overflow-x: auto; border-radius: 15px; }
-  #numberLine { min-width: 680px; }
-  .prompt-row h2 { font-size: 18px; }
-  .prompt-row { align-items: center; }
+  .visual-panel { padding: 14px; }
+  .number-display { min-height: 58px; margin-block: 2px 6px; }
+  .big-number { font-size: clamp(31px, 11vw, 46px); }
+  .number-line-frame { min-height: 205px; overflow: hidden; border-radius: 15px; }
+  #numberLine { width: 100%; min-width: 0; }
+  .prompt-row h2 { margin-bottom: 8px; font-size: 17px; }
+  .prompt-row { align-items: flex-start; gap: 8px; }
   .speak-answer-btn { min-width: 50px; padding: 9px 11px; }
   .speak-answer-btn span:last-child { display: none; }
-  .tick-label { font-size: 21px; }
-  .learning-strip { grid-template-columns: 1fr; gap: 6px; }
-  .learning-strip div { justify-content: flex-start; min-height: 44px; }
-  .forest-footer { height: 135px; }
+  .axis { stroke-width: 9; }
+  .tick { stroke-width: 5; }
+  .tick.major { stroke-width: 7; }
+  .tick-label { font-size: 38px; }
+  .minor-label { font-size: 31px; }
+  .marker-line { stroke-width: 6; }
+  .marker-circle, .question-marker { r: 30px; stroke-width: 9; }
+  .marker-label { font-size: 38px; }
+  .marker-caption { font-size: 29px; }
+  .sequence-connector { stroke-width: 9; }
+  .sequence-value { font-size: 38px; }
+  .answer-area { padding-top: 10px; }
+  .choice-btn.word-choice { width: 100%; min-width: 0; min-height: 50px; }
+  .feedback { min-height: 48px; padding: 11px 12px; }
+  .learning-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .learning-strip div { flex-direction: column; gap: 5px; min-height: 72px; padding: 7px 4px; font-size: 10px; text-align: center; }
+  .learning-strip span { width: 25px; height: 25px; }
+  .forest-footer { position: absolute; height: 105px; }
   .forest-footer img { width: 900px; }
 }
 
