@@ -36,7 +36,7 @@ const messages = {
     range: "Julat nombor", number: "Nombor", stepSize: "Saiz langkah", firstNumber: "Nombor pertama", secondNumber: "Nombor kedua",
     level: "Tahap", easyLevel: "Mudah (0–100)", d2Level: "D2 (0–1,000)", d3Level: "D3 (0–10,000)",
     roundingTo: "Bundar kepada", nearest10: "Puluh terdekat", nearest100: "Ratus terdekat", nearest1000: "Ribu terdekat",
-    start: "Nombor mula", difference: "Perbezaan", direction: "Arah pola", increasing: "Menaik", decreasing: "Menurun",
+    start: "Nombor mula", difference: "Perbezaan", direction: "Arah pola", randomDirection: "Rawak", increasing: "Menaik", decreasing: "Menurun",
     selected: "Nombor dipilih", clickHint: "Tekan garis atau butang + dan −.",
     compareHint: "Pilih ayat perbandingan yang betul.", roundHint: "Pilih jawapan yang paling dekat.", patternHint: "Taip nombor yang hilang.",
     check: "Semak", correct: "Betul!", tryAgain: "Cuba lagi. Lihat kedudukan nombor pada garis.",
@@ -61,7 +61,7 @@ const messages = {
     range: "数字范围", number: "数字", stepSize: "每次移动", firstNumber: "第一个数", secondNumber: "第二个数",
     level: "等级", easyLevel: "简单（0–100）", d2Level: "二年级（0–1,000）", d3Level: "三年级（0–10,000）",
     roundingTo: "取整单位", nearest10: "最接近的十", nearest100: "最接近的百", nearest1000: "最接近的千",
-    start: "开始数字", difference: "相差", direction: "规律方向", increasing: "递增", decreasing: "递减",
+    start: "开始数字", difference: "相差", direction: "规律方向", randomDirection: "随机", increasing: "顺序（递增）", decreasing: "逆序（递减）",
     selected: "已选择", clickHint: "点击数轴，或使用 + 和 −。", compareHint: "请选择正确的比较句子。",
     roundHint: "选择最靠近的答案。", patternHint: "输入缺少的数字。", check: "检查",
     correct: "答对了！", tryAgain: "再试一次，看看数字在数轴上的位置。",
@@ -82,7 +82,7 @@ const messages = {
     range: "Number range", number: "Number", stepSize: "Step size", firstNumber: "First number", secondNumber: "Second number",
     level: "Level", easyLevel: "Easy (0–100)", d2Level: "D2 (0–1,000)", d3Level: "D3 (0–10,000)",
     roundingTo: "Round to", nearest10: "Nearest 10", nearest100: "Nearest 100", nearest1000: "Nearest 1,000",
-    start: "Starting number", difference: "Difference", direction: "Pattern direction", increasing: "Increasing", decreasing: "Decreasing",
+    start: "Starting number", difference: "Difference", direction: "Pattern direction", randomDirection: "Random", increasing: "Increasing", decreasing: "Decreasing",
     selected: "Selected number", clickHint: "Tap the line, or use + and −.", compareHint: "Choose the correct comparison sentence.",
     roundHint: "Choose the nearest answer.", patternHint: "Type the missing number.", check: "Check",
     correct: "Correct!", tryAgain: "Try again. Look at the positions on the number line.",
@@ -101,7 +101,7 @@ const state = {
   explore: { range: 100, value: 37, step: 1 },
   compare: { a: 538, b: 764, level: 1000 },
   rounding: { value: 237, base: 10 },
-  pattern: { start: 120, step: 5, direction: 1, missingIndex: 3, level: 1000 }
+  pattern: { start: 120, step: 5, direction: 1, directionMode: "random", missingIndex: 3, level: 1000 }
 };
 
 function t(key, ...args) {
@@ -437,6 +437,14 @@ function controlsForPattern() {
         <option value="1000" ${state.pattern.level === 1000 ? "selected" : ""}>${t("d2Level")}</option>
         <option value="10000" ${state.pattern.level === 10000 ? "selected" : ""}>${t("d3Level")}</option>
       </select>
+    </div>
+    <div class="field">
+      <label for="patternDirection">${t("direction")}</label>
+      <select id="patternDirection">
+        <option value="random" ${state.pattern.directionMode === "random" ? "selected" : ""}>${t("randomDirection")}</option>
+        <option value="increasing" ${state.pattern.directionMode === "increasing" ? "selected" : ""}>${t("increasing")}</option>
+        <option value="decreasing" ${state.pattern.directionMode === "decreasing" ? "selected" : ""}>${t("decreasing")}</option>
+      </select>
     </div>`;
 }
 
@@ -447,17 +455,21 @@ function generateCompareQuestion() {
 }
 
 function generatePatternQuestion() {
-  const { level } = state.pattern;
+  const { level, directionMode = "random" } = state.pattern;
   const stepChoices = level === 100
     ? [1, 2, 5, 10, 20]
     : level === 1000
       ? [2, 5, 10, 20, 25, 50, 100, 200]
       : [10, 25, 50, 100, 200, 250, 500, 1000, 2000];
   const step = stepChoices[randomInt(0, stepChoices.length - 1)];
-  const direction = Math.random() < .5 ? 1 : -1;
+  const direction = directionMode === "increasing"
+    ? 1
+    : directionMode === "decreasing"
+      ? -1
+      : Math.random() < .5 ? 1 : -1;
   const span = step * 4;
   const start = direction === 1 ? randomInt(0, level - span) : randomInt(span, level);
-  state.pattern = { level, start, step, direction, missingIndex: randomInt(1, 3) };
+  state.pattern = { level, start, step, direction, directionMode, missingIndex: randomInt(1, 3) };
 }
 
 function bindControls() {
@@ -523,6 +535,11 @@ function bindControls() {
   if (state.mode === "pattern") {
     document.getElementById("patternLevel").addEventListener("change", event => {
       state.pattern.level = Number(event.target.value);
+      generatePatternQuestion();
+      renderMode();
+    });
+    document.getElementById("patternDirection").addEventListener("change", event => {
+      state.pattern.directionMode = event.target.value;
       generatePatternQuestion();
       renderMode();
     });
